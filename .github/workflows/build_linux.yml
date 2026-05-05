@@ -45,6 +45,21 @@ jobs:
               -//score/os/test:errno_test
               -//score/os/test:socket_test
             bazel-test-extra-flags: "--test_timeout=180,900,2700,10800" # Increase test timeout due to QEMU emulation
+          - bazel-config: autosd-x86_64
+            bazel-build-target: "//score/..."
+            bazel-test-target: >-
+              //score/...
+              -//score/language/safecpp/aborts_upon_exception:abortsuponexception_toolchain_test
+            bazel-test-extra-flags: ""
+          - bazel-config: autosd-aarch64
+            bazel-build-target: "//score/..."
+            bazel-test-target: >-
+              //score/...
+              -//score/language/safecpp/aborts_upon_exception:abortsuponexception_toolchain_test
+              -//score/os/test:acl_test
+              -//score/os/test:errno_test
+              -//score/os/test:socket_test
+            bazel-test-extra-flags: "--test_timeout=180,900,2700,10800" # Increase test timeout due to QEMU emulation
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v6
@@ -58,7 +73,7 @@ jobs:
           repository-cache: true
           cache-save: ${{ github.event_name == 'push' }}
       - name: Install QEMU
-        if: matrix.bazel-config == 'bl-aarch64-linux'
+        if: matrix.bazel-config == 'bl-aarch64-linux' || matrix.bazel-config == 'bl-aarch64-autosd'
         run: |
           sudo apt-get update
           sudo apt install -y qemu-user

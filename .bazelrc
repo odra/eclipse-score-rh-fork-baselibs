@@ -34,6 +34,11 @@ test:_bl_common --build_tests_only
 test:_bl_common --test_tag_filters=-manual
 test:_bl_common --test_output=errors
 
+## temporary workaround gcc14
+build:_bl_stub_autosd --cxxopt=-Wno-error=self-move
+build:_bl_stub_autosd --cxxopt=-Wno-error=dangling-reference
+build:_bl_stub_autosd --cxxopt=-Wno-error=pessimizing-move
+
 # Common BaseLibs Toolchain flags for build (do not use it in case of system toolchains!)
 build:_bl_toolchain_common --incompatible_strict_action_env
 build:_bl_toolchain_common --host_platform=@score_bazel_platforms//:x86_64-linux
@@ -79,6 +84,24 @@ test:bl-aarch64-qnx --run_under=@score_qnx_unit_tests//src:run_under_qnx
 test:bl-aarch64-qnx --test_tag_filters=
 test:bl-aarch64-qnx --test_lang_filters=cc,rust
 
+# Target configuration for CPU:x86-64|OS:AutoSD10 Linux
+build:bl-x86_64-autosd --config=_bl_stub
+build:bl-x86_64-autosd --config=_bl_toolchain_common
+build:bl-x86_64-autosd --config=_bl_stub_autosd
+build:bl-x86_64-autosd --platforms=@score_bazel_platforms//:x86_64-linux-autosd10
+build:bl-x86_64-autosd --extra_toolchains=@score_autosd10_x86_64_toolchain//:x86_64-linux-autosd10
+test:bl-x86_64-autosd --config=_bl_common
+
+# Target configuration for CPU:aarch64|OS:AutoSD10 Linux
+build:bl-aarch64-autosd --config=_bl_stub
+build:bl-aarch64-autosd --config=_bl_toolchain_common
+build:bl-aarch64-autosd --config=_bl_stub_autosd
+build:bl-aarch64-autosd --platforms=@score_bazel_platforms//:aarch64-linux-autosd10
+build:bl-aarch64-autosd --extra_toolchains=@score_autosd10_aarch64_toolchain//:aarch64-linux-autosd10
+test:bl-aarch64-linux --config=_bl_common
+test:bl-aarch64-linux --test_timeout=300
+test:bl-aarch64-linux --run_under=//:qemu_aarch64
+
 # Coverage configuration for C++
 coverage --features=coverage
 coverage --combined_report=lcov
@@ -106,3 +129,4 @@ build:clang_tidy --force_pic
 build:clang_tidy --incompatible_enable_cc_toolchain_resolution
 build:clang_tidy --output_groups=clang_tidy_output
 build:clang_tidy --verbose_failures
+
